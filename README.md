@@ -27,4 +27,4 @@
 **I forgot in the above example to send the battery value so I took another screenshot!**
 ![image](https://user-images.githubusercontent.com/67909636/159703911-ac26ae54-0b4c-4d9e-9a7c-2cd722678033.png)
 ![image](https://user-images.githubusercontent.com/67909636/159703927-99cf70c9-6683-482b-9405-161c6698500b.png)
-![image](https://user-images.githubusercontent.com/67909636/159704215-c4dacbf5-0322-45a1-9850-02f1f3cb8eb7.png)
+![image](https://user-images.githubusercontent.com/67909636/159704858-7147699a-732a-4001-8cc0-b33ecb38d10a.png)
