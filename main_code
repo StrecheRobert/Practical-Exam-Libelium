@@ -1,0 +1,102 @@
+//2. SET RTC time
+//3. read battery level
+//4. read temperature and Gas Concentration [gas sensors are on socket 2, on each of the boards]
+//5. read battery, temperature and Gas concentration and send via WiFI to meshlium 82.78.81.178
+
+
+#include <WaspWIFI_PRO.h>
+#include <WaspSensorGas_v30.h>
+#include <WaspFrame.h>
+
+float Temperature;
+O2SensorClass O2Sensor(SOCKET_1);
+
+#define POINT1_PERCENTAGE 0.0    
+#define POINT2_PERCENTAGE 5.0  
+#define POINT1_VOLTAGE 0.35
+#define POINT2_VOLTAGE 2.0
+
+float concentrations[] = {POINT1_PERCENTAGE, POINT2_PERCENTAGE};
+float voltages[] =       {POINT1_VOLTAGE, POINT2_VOLTAGE};
+
+char node_ID[] = "Streche_Robert_Libelium";
+uint8_t socket = SOCKET0;
+
+char type[] = "http";
+char host[] = "82.78.81.178";
+char port[] = "80";
+
+uint8_t error;
+uint8_t status;
+unsigned long previous;
+
+void setup()
+{
+ USB.ON();
+ //SET RTC time
+ RTC.ON();                                                                                        
+ RTC.setTime("13:01:11:06:12:33:00");
+
+ O2Sensor.setCalibrationPoints(voltages, concentrations);
+ frame.setID(node_ID); 
+ Gases.ON();
+ O2Sensor.ON();
+}
+
+void loop()
+{   
+  //read temperature
+  Temperature = Gases.getTemperature();                                                
+  float O2Vol = O2Sensor.readVoltage();
+  delay(100);
+  //read temperature and Gas Concentration
+  float O2Val = O2Sensor.readConcentration();  
+  
+  frame.createFrame(ASCII, node_ID);   
+  frame.addSensor(SENSOR_GASES_TC, Temperature);
+  frame.addSensor(SENSOR_GASES_O2, O2Val);
+  //read battery level
+  frame.addSensor(SENSOR_BAT, PWR.getBatteryLevel());                
+  frame.showFrame();
+  delay(5000); 
+
+  previous = millis();
+  error = WIFI_PRO.ON(socket);
+  if (error == 0)
+  {    
+    USB.println(F("WiFi switched ON"));
+  }
+  else
+  {
+    USB.println(F("WiFi did not initialize correctly"));
+  }
+
+  status =  WIFI_PRO.isConnected();
+  if (status == true)
+  {    
+    USB.print(F("WiFi is connected OK"));
+    USB.print(F(" Time(ms):"));    
+    USB.println(millis()-previous);
+    delay(5000)
+    //send via WiFi to meshlium 82.78.81.178
+    error = WIFI_PRO.sendFrameToMeshlium(type, host, port, frame.buffer, frame.length);
+    if (error == 0)
+    {
+      USB.println(F("HTTP OK"));          
+      USB.print(F("HTTP Time from OFF state (ms):"));    
+      USB.println(millis()-previous);
+    }
+    else
+    {
+      USB.println(F("Error calling 'getURL' function"));
+      WIFI_PRO.printErrorCode();
+    }
+  }
+  else
+  {
+    USB.print(F("WiFi is connected ERROR")); 
+    USB.print(F(" Time(ms):"));    
+    USB.println(millis()-previous);  
+  }
+ delay(300000);
+}
