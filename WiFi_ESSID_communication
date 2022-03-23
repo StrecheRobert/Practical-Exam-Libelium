@@ -1,3 +1,5 @@
+//1. code for WiFi ESSID communication, manage to connect to LANCOMBEIA ESSID
+
 #include <WaspWIFI_PRO.h>
 // choose socket (SELECT USER'S SOCKET)
 ///////////////////////////////////////
